@@ -62,7 +62,7 @@ export const RevenueAreaChart = ({ data }) => (
   </ResponsiveContainer>
 );
 
-export const SalesBarChart = ({ data }) => {
+export const SalesBarChart = ({ data, dataKey = 'revenue' }) => {
   const colors = ['#3a5a7c', '#4a7c59', '#e8933a', '#c84b2f', '#8b9aab'];
   
   return (
@@ -81,7 +81,7 @@ export const SalesBarChart = ({ data }) => {
           cursor={{ fill: 'transparent' }}
           contentStyle={{ backgroundColor: '#0d0d0d', border: 'none', borderRadius: '8px', color: '#fff' }}
         />
-        <Bar dataKey="revenue" radius={[0, 4, 4, 0]} barSize={20}>
+        <Bar dataKey={dataKey} radius={[0, 4, 4, 0]} barSize={20}>
           {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
           ))}

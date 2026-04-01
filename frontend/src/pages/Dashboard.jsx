@@ -9,13 +9,16 @@ import {
   ArrowDownRight, 
   Clock, 
   ChevronRight,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
+  BrainCircuit
 } from 'lucide-react';
 import { RevenueAreaChart, SalesBarChart, DigitalRadarChart } from '../components/DashboardCharts';
 import dashboardService from '../services/dashboardService';
 import useAuthStore from '../store/authStore';
 import useModuleStore from '../store/moduleStore';
 import { toast } from 'react-hot-toast';
+import aiService from '../services/aiService';
 
 const StatCard = ({ title, value, subValue, icon: Icon, trend, trendValue, color }) => (
   <div className="card-soft relative overflow-hidden group">
@@ -49,6 +52,7 @@ const Dashboard = () => {
   const [revenueData, setRevenueData] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [activities, setActivities] = useState([]);
+  const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const handleUpdateStock = () => {
@@ -62,19 +66,28 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [sRes, rRes, pRes, aRes] = await Promise.all([
+        const results = await Promise.allSettled([
           dashboardService.getStats(),
           dashboardService.getRevenueChart(),
           dashboardService.getTopProducts(),
-          dashboardService.getRecentActivity()
+          dashboardService.getRecentActivity(),
+          aiService.getPredictions()
         ]);
+
+        const [sRes, rRes, pRes, aRes, aiRes] = results.map(r => r.status === 'fulfilled' ? r.value : null);
+
         setStats(sRes?.data || {});
         setRevenueData(Array.isArray(rRes?.data) ? rRes.data : []);
         setTopProducts(Array.isArray(pRes?.data) ? pRes.data : []);
         setActivities(Array.isArray(aRes?.data) ? aRes.data : []);
+        
+        if (aiRes?.data && aiRes.data.length > 0) {
+          setPrediction(aiRes.data[0]);
+        }
       } catch (error) {
         console.error('Failed to fetch dashboard data', error);
-      } finally {
+      }
+ finally {
         setLoading(false);
       }
     };
@@ -92,7 +105,7 @@ const Dashboard = () => {
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-ink">Namaste, {business?.name}</h1>
+          <h1 className="text-3xl font-heading font-bold text-ink">Welcome, {business?.name}</h1>
           <p className="text-mist font-medium">Here's what's happening with your business today.</p>
         </div>
         <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-2xl border border-mist/10 shadow-soft">
@@ -178,6 +191,50 @@ const Dashboard = () => {
           </div>
           <button className="w-full mt-6 flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-mist hover:text-white transition-colors">
             View Detail Report <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* AI Prediction Quick Card */}
+        <div className="card-soft border-rust/20 bg-rust/5 relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute -top-4 -right-4 w-24 h-24 bg-rust/10 rounded-full blur-2xl"></div>
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 bg-rust text-white rounded-lg">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <h3 className="font-heading text-lg font-bold text-ink">AI Prediction</h3>
+            </div>
+            {prediction ? (
+              <div className="space-y-4">
+                <p className="text-sm font-medium text-ink/70">Next Month's Top Predicted Seller:</p>
+                <div className="bg-white p-4 rounded-2xl shadow-soft border border-rust/10">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <h4 className="font-black text-xl text-rust">{prediction.name}</h4>
+                      <p className="text-[10px] font-bold text-mist uppercase tracking-widest mt-1">Predicted Volume</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center gap-1 text-sage font-bold">
+                        <TrendingUp className="w-3 h-3" />
+                        {prediction.trend}%
+                      </div>
+                      <p className="font-heading font-black text-2xl text-ink">{prediction.predictedNextMonth}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-6 text-center">
+                <BrainCircuit className="w-10 h-10 text-mist/30 mb-2" />
+                <p className="text-xs font-bold text-mist uppercase tracking-widest">Collecting enough data...</p>
+              </div>
+            )}
+          </div>
+          <button 
+            onClick={() => navigate('/ai-insights')}
+            className="mt-6 w-full py-3 bg-ink text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-rust transition-all shadow-lg shadow-ink/10"
+          >
+            Explore AI Insights
           </button>
         </div>
       </div>

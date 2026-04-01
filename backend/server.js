@@ -26,6 +26,7 @@ app.use('/api/customers', require('./routes/customers'));
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/modules', require('./routes/modules'));
 app.use('/api/onboarding', require('./routes/onboarding'));
+app.use('/api/ai', require('./routes/ai'));
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok', message: 'BizReady API running' }));

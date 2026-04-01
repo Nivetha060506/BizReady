@@ -17,6 +17,7 @@ import Inventory from './pages/Inventory';
 import CRM from './pages/CRM';
 import Tasks from './pages/Tasks';
 import Modules from './pages/Modules';
+import AIInsights from './pages/AIInsights';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuthStore();
@@ -62,6 +63,7 @@ function App() {
           <Route path="crm" element={<CRM />} />
           <Route path="tasks" element={<Tasks />} />
           <Route path="modules" element={<Modules />} />
+          <Route path="ai-insights" element={<AIInsights />} />
         </Route>
         
         <Route path="*" element={<Navigate to="/" replace />} />

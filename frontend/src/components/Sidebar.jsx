@@ -8,7 +8,8 @@ import {
   Sparkles, 
   Settings,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  BrainCircuit
 } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import useModuleStore from '../store/moduleStore';
@@ -29,6 +30,7 @@ const Sidebar = () => {
     { name: 'Inventory', icon: Package, path: '/inventory', enabled: enabledModules?.inventory },
     { name: 'CRM', icon: Users, path: '/crm', enabled: enabledModules?.crm },
     { name: 'Tasks & Production', icon: CheckSquare, path: '/tasks', enabled: enabledModules?.tasks },
+    { name: 'AI Insights', icon: BrainCircuit, path: '/ai-insights', enabled: true },
     { name: 'Onboarding Wizard', icon: Sparkles, path: '/onboarding', enabled: true },
     { name: 'Modules', icon: Settings, path: '/modules', enabled: true },
   ];
